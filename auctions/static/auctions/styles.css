@@ -1,0 +1,13 @@
+.card-responsive {
+    cursor: pointer;
+    transform: scale(.98);
+    text-decoration: inherit;
+    color: inherit;
+    transition: 75ms ease;
+}
+
+.card-responsive:hover {
+    color: inherit;
+    filter: contrast(80%);
+    transform: scale(1);
+}
