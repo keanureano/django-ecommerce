@@ -5,9 +5,11 @@
 <div class="col-2">
     <form>
         <select class="form-select" name="category" onchange="this.form.submit();">
-            <option value="All" {% if selected_category is None %} selected {% endif %}>All</option>
+            <option value="All" {% if selected_category is None %} selected {% endif %}>
+                All</option>
             {% for c in categories %}
-            <option {% if selected_category == c.name %} selected {% endif %} value="{{ c.name }}">{{ c.name }}</option>
+            <option value="{{ c.name }}" {% if selected_category == c.name %} selected {% endif %}>
+                {{ c.name }}</option>
             {% endfor %}
         </select>
     </form>
@@ -16,7 +18,7 @@
 <div class="row">
     {% for listing in listings %}
     <div class="col-6 col-lg-3 py-2">
-        <a href="#" class="card card-responsive w-100 h-100">
+        <a href="{% url 'listing' listing_id=listing.id %}" class="card card-responsive w-100 h-100">
             <img class="h-50 img-fluid" src="{{ listing.image_url }}" alt="{{ listing.title }}"
                 style="object-fit: cover;">
             <div class="card-body">

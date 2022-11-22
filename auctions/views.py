@@ -25,6 +25,12 @@ def index(request):
         "selected_category": selected_category
     })
 
+def listing(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+    })
+
 @login_required
 def create_listing(request):
     if request.method == "POST":

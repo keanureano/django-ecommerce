@@ -1,0 +1,15 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<button class="btn btn-primary" onclick="history.back();">Go Back</button>
+<div class="row flex-column-reverse flex-md-row m-3">
+    <div class="col-12 col-md-6 card p-3">
+        <h2>{{ listing.title }}</h2>
+        <h2>USD ${{ listing.starting_price }}</h2>
+        <p>{{ listing.description }}</p>
+    </div>
+    <div class="col-12 col-md-6">
+        <img class="w-75 mx-auto mb-3 mb-md-0 d-block rounded-3" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+    </div>
+</div>
+{% endblock %}
