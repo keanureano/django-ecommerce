@@ -1,0 +1,32 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2>Watchlist</h2>
+<div class="row">
+    {% for listing in listings %}
+    <div class="col-6 col-lg-3 py-2">
+        <div class="m-0 p-0 w-100 h-100">
+            <div class="w-100 d-flex justify-content-end">
+                <form action="{% url 'listing' listing_id=listing.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" name="watchlist" value="remove2" class="btn-close bg-danger me-1"></button>
+                </form>
+            </div>
+            <a href="{% url 'listing' listing_id=listing.id %}" class="card card-responsive w-100 h-100">
+                <img class="h-50 img-fluid" src="{{ listing.image_url }}" alt="{{ listing.title }}"
+                    style="object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ listing.title|truncatechars:24 }}</h5>
+                    <h6 class="card-title">USD ${{ listing.starting_price }}</h6>
+                    <p class="card-text">{{ listing.description|truncatechars:64 }}</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% if forloop.counter|divisibleby:4 %}
+</div>
+<div class="row">
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

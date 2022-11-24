@@ -1,15 +1,31 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-<button class="btn btn-primary" onclick="history.back();">Go Back</button>
+
+<div class="d-flex">
+    <button class="btn btn-primary me-2" onclick="history.back();">Go Back</button>
+    {% if user.is_authenticated %}
+    <form method="post">
+        {% csrf_token %}
+        {% if is_watchlisted == True %}
+        <button type="submit" class="btn btn-danger" name="watchlist" value="remove">Remove from Watchlist</button>
+        {% else %}
+        <button type="submit" class="btn btn-success" name="watchlist" value="add">Add to Watchlist</button>
+        {% endif %}
+    </form>
+    {% endif %}
+</div>
+
 <div class="row flex-column-reverse flex-md-row m-3">
     <div class="col-12 col-md-6 card p-3">
         <h2>{{ listing.title }}</h2>
-        <h2>USD ${{ listing.starting_price }}</h2>
-        <p>{{ listing.description }}</p>
+        <h4>USD ${{ listing.starting_price }}</h2>
+            <h6>{{ listing.user_id }}</h6>
+            <p>{{ listing.description }}</p>
     </div>
     <div class="col-12 col-md-6">
-        <img class="w-75 mx-auto mb-3 mb-md-0 d-block rounded-3" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+        <img class="w-75 mx-auto mb-3 mb-md-0 d-block rounded-3" src="{{ listing.image_url }}"
+            alt="{{ listing.title }}">
     </div>
 </div>
 {% endblock %}

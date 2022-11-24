@@ -10,8 +10,8 @@
     <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
 </head>
 
-<body>
-    <div class="px-5 py-3">
+<body class="bg-light">
+    <div class="px-5 py-3 bg-white">
         <h1>Auctions</h1>
         <div>
             {% if user.is_authenticated %}
@@ -22,21 +22,24 @@
         </div>
         <ul class="nav">
             <li class="nav-item">
-                <a class="nav-link ps-0" href="{% url 'index' %}">Active Listings</a>
+                <a class="nav-link ps-0 px-2" href="{% url 'index' %}">Active Listings</a>
             </li>
             {% if user.is_authenticated %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'create' %}">Create Listing</a>
+                <a class="nav-link px-2" href="{% url 'create' %}">Create Listing</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                <a class="nav-link px-2" href="{% url 'watchlist' %}">Watchlist</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link px-2" href="{% url 'logout' %}">Log Out</a>
             </li>
             {% else %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                <a class="nav-link px-2" href="{% url 'login' %}">Log In</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                <a class="nav-link px-2" href="{% url 'register' %}">Register</a>
             </li>
             {% endif %}
         </ul>

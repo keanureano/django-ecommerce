@@ -27,9 +27,23 @@ def index(request):
 
 def listing(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
-    return render(request, "auctions/listing.html", {
-        "listing": listing
-    })
+    user = request.user
+    if request.method == "POST":
+        watchlist = request.POST["watchlist"]
+        if watchlist == "add":
+            listing.watchlist.add(user)
+        elif watchlist == "remove":
+            listing.watchlist.remove(user)
+        elif watchlist == "remove2":
+            listing.watchlist.remove(user)
+            return redirect("watchlist")
+        return redirect("listing", listing_id)
+    else:
+        is_watchlisted = (user in listing.watchlist.all())
+        return render(request, "auctions/listing.html", {
+            "listing": listing,
+            "is_watchlisted": is_watchlisted
+        })
 
 @login_required
 def create_listing(request):
@@ -54,6 +68,15 @@ def create_listing(request):
         return render(request, "auctions/create.html", {
             "categories": Category.objects.all()
         })
+
+def watchlist(request):
+    user = request.user
+    listings = Listing.objects.filter(watchlist=user)
+    if not listings:
+        messages.warning(request, "No listings in the watchlist.")
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })
 
 def login_view(request):
     if request.method == "POST":

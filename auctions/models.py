@@ -19,6 +19,7 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True)
     user_id = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
     category_id = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
+    watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
     def __str__(self):
         return f"{self.title}: ${self.starting_price}"
