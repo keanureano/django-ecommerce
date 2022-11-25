@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from .models import User, Category, Listing
+from .models import User, Category, Listing, Comment
 
 
 def index(request):
@@ -26,8 +26,9 @@ def index(request):
     })
 
 def listing(request, listing_id):
-    listing = Listing.objects.get(id=listing_id)
     user = request.user
+    listing = Listing.objects.get(id=listing_id)
+    comments = Comment.objects.filter(listing=listing_id)
     if request.method == "POST":
         watchlist = request.POST["watchlist"]
         if watchlist == "add":
@@ -42,8 +43,10 @@ def listing(request, listing_id):
         is_watchlisted = (user in listing.watchlist.all())
         return render(request, "auctions/listing.html", {
             "listing": listing,
-            "is_watchlisted": is_watchlisted
+            "is_watchlisted": is_watchlisted,
+            "comments": comments
         })
+        
 
 @login_required
 def create_listing(request):
@@ -51,13 +54,13 @@ def create_listing(request):
         # Try to save listing
         try:
             listing = Listing(
-            title = request.POST["title"],
-            description = request.POST["description"],
-            starting_price = float(request.POST["starting_price"]),
-            image_url = request.POST["image_url"],
-            category = Category.objects.get(id=int(request.POST["category"])),
-            author = request.user
-        )
+                title = request.POST["title"],
+                description = request.POST["description"],
+                starting_price = float(request.POST["starting_price"]),
+                image_url = request.POST["image_url"],
+                category = Category.objects.get(id=int(request.POST["category"])),
+                author = request.user
+            )
             listing.save()
             messages.success(request, "Succesfully added listing!")
         except Exception as e:
@@ -68,6 +71,25 @@ def create_listing(request):
         return render(request, "auctions/create.html", {
             "categories": Category.objects.all()
         })
+
+@login_required
+def create_comment(request, listing_id):
+    try:
+        user_comment = request.POST["comment"]
+        if user_comment == "" or user_comment.isspace():
+            print("None")
+            raise ValueError("Comment must not be empty")
+        comment = Comment(   
+            author = request.user,
+            listing = Listing.objects.get(id=listing_id),
+            comment = user_comment,
+        )
+        comment.save()
+        messages.success(request, "Successfully added comment!")
+    except Exception as e:
+        messages.error(request, f"Failed to create comment. {e}")
+        return redirect("listing", listing_id)
+    return redirect("listing", listing_id)
 
 def watchlist(request):
     user = request.user

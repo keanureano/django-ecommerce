@@ -17,7 +17,7 @@
 </div>
 
 <div class="row flex-column-reverse flex-md-row m-3">
-    <div class="col-12 col-md-6 card p-3">
+    <div class="card col-12 col-md-6 p-3">
         <h2>{{ listing.title }}</h2>
         <h4>USD ${{ listing.starting_price }}</h2>
             <h6>{{ listing.user_id }}</h6>
@@ -27,5 +27,37 @@
         <img class="w-75 mx-auto mb-3 mb-md-0 d-block rounded-3" src="{{ listing.image_url }}"
             alt="{{ listing.title }}">
     </div>
+    <div class="row mt-5">
+        <div class="col-6 p-0 mt-3">
+            <h1>Comments</h1>
+            <form action="{% url 'create_comment' listing_id=listing.id %}" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <textarea class="form-control" name="comment" id="comment" rows="2" style="resize: none;"
+                        placeholder="Add a comment"></textarea>
+                    <button class="btn btn-primary" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-plus-lg" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-5 p-0">
+        {% for c in comments %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <p class="m-0"><b>{{ c.author }}</b> {{ c.date_commented }}</p>
+            </div>
+            <div class="card-body">
+                <p class="m-0">{{ c.comment }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
 {% endblock %}
