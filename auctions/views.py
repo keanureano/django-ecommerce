@@ -16,7 +16,7 @@ def index(request):
         return redirect("index")
     elif selected_category != None:
         category = Category.objects.get(name=selected_category)
-        listings = Listing.objects.filter(is_active=True, category_id=category)
+        listings = Listing.objects.filter(is_active=True, category=category)
     else:
         listings = Listing.objects.filter(is_active=True)
     return render(request, "auctions/index.html", {
@@ -55,8 +55,8 @@ def create_listing(request):
             description = request.POST["description"],
             starting_price = float(request.POST["starting_price"]),
             image_url = request.POST["image_url"],
-            category_id = Category.objects.get(id=int(request.POST["category_id"])),
-            user_id = request.user
+            category = Category.objects.get(id=int(request.POST["category"])),
+            author = request.user
         )
             listing.save()
             messages.success(request, "Succesfully added listing!")

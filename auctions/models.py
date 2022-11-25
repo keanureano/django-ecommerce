@@ -17,9 +17,16 @@ class Listing(models.Model):
     starting_price = models.FloatField()
     image_url = models.CharField(max_length=512)
     is_active = models.BooleanField(default=True)
-    user_id = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
-    category_id = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
+    author = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
     def __str__(self):
         return f"{self.title}: ${self.starting_price}"
+
+class Comment(models.Model):
+    author = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="comments")
+    listing = models.ForeignKey(Listing, null=True, blank=True, on_delete=models.CASCADE, related_name="comments")
+    comment = models.CharField(max_length=512)
+    def __str__(self):
+        return f"[{self.author}] {self.listing}"
