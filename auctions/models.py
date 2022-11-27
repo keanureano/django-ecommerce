@@ -29,5 +29,14 @@ class Comment(models.Model):
     listing = models.ForeignKey(Listing, null=True, blank=True, on_delete=models.CASCADE, related_name="comments")
     comment = models.CharField(max_length=512)
     date_commented = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"{self.author}: {self.listing.title}: {self.comment}"
+
+class Bid(models.Model):
+    author = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="bids")
+    listing = models.ForeignKey(Listing, null=True, blank=True, on_delete=models.CASCADE, related_name="bids")
+    price = models.FloatField()
+
+    def __str__(self):
+        return f"{self.author}: {self.listing.title}: {self.price}"

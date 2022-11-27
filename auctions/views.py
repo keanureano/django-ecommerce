@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from .models import User, Category, Listing, Comment
+from .models import *
 
 
 def index(request):
@@ -19,6 +19,7 @@ def index(request):
         listings = Listing.objects.filter(is_active=True, category=category)
     else:
         listings = Listing.objects.filter(is_active=True)
+    print(listings)
     return render(request, "auctions/index.html", {
         "listings": listings,
         "categories": categories,
@@ -28,7 +29,8 @@ def index(request):
 def listing(request, listing_id):
     user = request.user
     listing = Listing.objects.get(id=listing_id)
-    comments = Comment.objects.filter(listing=listing_id)
+    comments = Comment.objects.filter(listing=listing_id).order_by("-date_commented")
+    highest_bid = Bid.objects.filter(listing = listing_id).order_by('-price').first()
     if request.method == "POST":
         watchlist = request.POST["watchlist"]
         if watchlist == "add":
@@ -43,6 +45,7 @@ def listing(request, listing_id):
         is_watchlisted = (user in listing.watchlist.all())
         return render(request, "auctions/listing.html", {
             "listing": listing,
+            "highest_bid": highest_bid,
             "is_watchlisted": is_watchlisted,
             "comments": comments
         })
@@ -51,8 +54,8 @@ def listing(request, listing_id):
 @login_required
 def create_listing(request):
     if request.method == "POST":
-        # Try to save listing
         try:
+            # Try to create listing
             listing = Listing(
                 title = request.POST["title"],
                 description = request.POST["description"],
@@ -62,6 +65,13 @@ def create_listing(request):
                 author = request.user
             )
             listing.save()
+            # Try to create bid            
+            bid = Bid(
+                author = request.user,
+                listing = listing,
+                bid = float(request.POST["starting_price"])
+            )
+            bid.save()
             messages.success(request, "Succesfully added listing!")
         except Exception as e:
             messages.error(request, f"Failed to create listing. {e}")
@@ -74,22 +84,65 @@ def create_listing(request):
 
 @login_required
 def create_comment(request, listing_id):
-    try:
-        user_comment = request.POST["comment"]
-        if user_comment == "" or user_comment.isspace():
-            print("None")
-            raise ValueError("Comment must not be empty")
-        comment = Comment(   
-            author = request.user,
-            listing = Listing.objects.get(id=listing_id),
-            comment = user_comment,
-        )
-        comment.save()
-        messages.success(request, "Successfully added comment!")
-    except Exception as e:
-        messages.error(request, f"Failed to create comment. {e}")
+    if request.method == "POST":
+        try:
+            user_comment = request.POST["comment"]
+            if user_comment == "" or user_comment.isspace():
+                raise ValueError("Comment must not be empty")
+            comment = Comment(   
+                author = request.user,
+                listing = Listing.objects.get(id=listing_id),
+                comment = user_comment,
+            )
+            comment.save()
+            messages.success(request, "Successfully added comment!")
+        except Exception as e:
+            messages.error(request, f"Failed to create comment. {e}")
+            return redirect("listing", listing_id)
         return redirect("listing", listing_id)
-    return redirect("listing", listing_id)
+    else:
+        pass
+
+@login_required
+def delete_comment(request, listing_id):
+    if request.method == "POST":
+        try:
+            comment_id = request.POST["comment_id"]
+            if comment_id == "" or comment_id.isspace():
+                raise ValueError("Comment is empty")
+            comment = Comment.objects.get(id=comment_id)
+            comment.delete()
+            messages.success(request, "Successfully deleted comment!")
+        except Exception as e:
+            messages.error(request, f"Failed to delete comment. {e}")
+            return redirect("listing", listing_id)
+        return redirect("listing", listing_id)
+    else:
+        pass
+    
+@login_required
+def add_bid(request, listing_id):
+    if request.method == "POST":
+        author = request.user
+        listing = Listing.objects.get(id=listing_id)
+        highest_bid = Bid.objects.filter(listing=listing).order_by("-price").first()
+        bid_price = float(request.POST["bid_price"])
+        try:
+            if bid_price <= highest_bid.price:
+                raise ValueError("Bid is less than the minimum bid.")
+            bid = Bid(
+                author = author,
+                listing = listing,
+                price = bid_price
+            )
+            bid.save()
+            messages.success(request, "Successfully added bid!")
+        except Exception as e:
+            messages.error(request, f"Failed to add bid. {e}")
+            return redirect("listing", listing_id)
+        return redirect("listing", listing_id)
+    else:
+        pass
 
 def watchlist(request):
     user = request.user

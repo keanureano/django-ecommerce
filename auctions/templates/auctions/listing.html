@@ -19,38 +19,67 @@
 <div class="row flex-column-reverse flex-md-row m-3">
     <div class="card col-12 col-md-6 p-3">
         <h2>{{ listing.title }}</h2>
-        <h4>USD ${{ listing.starting_price }}</h2>
             <h6>{{ listing.user_id }}</h6>
+            <h4>USD ${{ listing.starting_price }}</h4>
             <p>{{ listing.description }}</p>
     </div>
     <div class="col-12 col-md-6">
         <img class="w-75 mx-auto mb-3 mb-md-0 d-block rounded-3" src="{{ listing.image_url }}"
             alt="{{ listing.title }}">
     </div>
-    <div class="row mt-5">
-        <div class="col-6 p-0 mt-3">
-            <h1>Comments</h1>
-            <form action="{% url 'create_comment' listing_id=listing.id %}" method="post">
-                {% csrf_token %}
-                <div class="input-group">
-                    <textarea class="form-control" name="comment" id="comment" rows="2" style="resize: none;"
-                        placeholder="Add a comment"></textarea>
-                    <button class="btn btn-primary" type="submit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-plus-lg" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
-                        </svg>
-                    </button>
-                </div>
-            </form>
-        </div>
+</div>
+<div class="row m-3">
+    <div class="card col-12 col-md-4 p-3">
+        <h2>Bid</h2>
+        <h5 class="fw-normal">Starting Bid: ${{ listing.starting_price }}</h5>
+        <h4>Current Bid: ${{ highest_bid.price }}</h4>
+        <form action="{% url 'add_bid' listing_id=listing.id %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="number" class="form-control" name="bid_price" id="bid_price" rows="4" style="resize: none;"
+                    min="{{ highest_bid.price }}" placeholder="Enter a Bid: Minimum ${{ highest_bid.price }}">
+                <button class="btn btn-warning" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-plus-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="col-5 p-0">
+</div>
+
+<div class="row m-3">
+    <div class="col-12 col-md-8 p-0 mt-3">
+        <h2>Comments</h2>
+        <form action="{% url 'create_comment' listing_id=listing.id %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <textarea class="form-control" name="comment" id="comment" rows="4" style="resize: none;"
+                    placeholder="Add a comment"></textarea>
+                <button class="btn btn-success" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-plus-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="col-12 col-md-8 p-0">
         {% for c in comments %}
         <div class="card mt-3">
-            <div class="card-header">
+            <div class="card-header d-flex">
                 <p class="m-0"><b>{{ c.author }}</b> {{ c.date_commented }}</p>
+                {% if listing.author.id == request.user.id %}
+                <form class="ms-auto" action="{% url 'delete_comment' listing_id=listing.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="comment_id" value="{{ c.id }}">
+                    <button type="submit" class="btn-close bg-danger rounded-5"></button>
+                </form>
+                {% endif %}
             </div>
             <div class="card-body">
                 <p class="m-0">{{ c.comment }}</p>
@@ -59,5 +88,4 @@
         {% endfor %}
     </div>
 </div>
-
 {% endblock %}
