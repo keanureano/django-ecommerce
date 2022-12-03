@@ -17,6 +17,11 @@
             <option value="{{ c.name }}">{{ c.name }}</option>
             {% endif %}
             {% endfor %}
+            {% if selected_category == "Inactive" %}
+            <option selected value="Inactive">Inactive</option>
+            {% else %}
+            <option value="Inactive">Inactive</option>
+            {% endif %}
         </select>
     </form>
 </div>

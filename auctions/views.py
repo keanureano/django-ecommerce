@@ -14,12 +14,13 @@ def index(request):
     selected_category = request.GET.get("category")
     if selected_category == "All":
         return redirect("index")
+    elif selected_category == "Inactive":
+        listings = Listing.objects.filter(is_active=False)
     elif selected_category != None:
         category = Category.objects.get(name=selected_category)
         listings = Listing.objects.filter(is_active=True, category=category)
     else:
         listings = Listing.objects.filter(is_active=True)
-    print(listings)
     return render(request, "auctions/index.html", {
         "listings": listings,
         "categories": categories,
@@ -139,6 +140,24 @@ def add_bid(request, listing_id):
             messages.success(request, "Successfully added bid!")
         except Exception as e:
             messages.error(request, f"Failed to add bid. {e}")
+            return redirect("listing", listing_id)
+        return redirect("listing", listing_id)
+    else:
+        pass
+
+def close_auction(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(id=listing_id)
+        user = request.user
+        winner_id = request.POST["winner_id"]
+        try:
+            if user == listing.author:
+                listing.is_active = False
+                listing.winner = User.objects.get(id=winner_id)
+                listing.save()
+                messages.success(request, "Sucessfully closed auction!")
+        except Exception as e:
+            messages.error(request, f"Failed to close auction. {e}")
             return redirect("listing", listing_id)
         return redirect("listing", listing_id)
     else:

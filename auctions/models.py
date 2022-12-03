@@ -18,6 +18,7 @@ class Listing(models.Model):
     image_url = models.CharField(max_length=512)
     is_active = models.BooleanField(default=True)
     author = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
+    winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="listing_winner")
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE, related_name="listings")
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
 

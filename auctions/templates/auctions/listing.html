@@ -19,9 +19,9 @@
 <div class="row flex-column-reverse flex-md-row m-3">
     <div class="card col-12 col-md-6 p-3">
         <h2>{{ listing.title }}</h2>
-            <h6>{{ listing.user_id }}</h6>
-            <h4>USD ${{ listing.starting_price }}</h4>
-            <p>{{ listing.description }}</p>
+        <h6>{{ listing.user_id }}</h6>
+        <h4>USD ${{ listing.starting_price }}</h4>
+        <p>{{ listing.description }}</p>
     </div>
     <div class="col-12 col-md-6">
         <img class="w-75 mx-auto mb-3 mb-md-0 d-block rounded-3" src="{{ listing.image_url }}"
@@ -29,6 +29,7 @@
     </div>
 </div>
 <div class="row m-3">
+    {% if listing.is_active == True %}
     <div class="card col-12 col-md-4 p-3">
         <h2>Bid</h2>
         <h5 class="fw-normal">Starting Bid: ${{ listing.starting_price }}</h5>
@@ -48,6 +49,23 @@
             </div>
         </form>
     </div>
+    {% endif %}
+    {% if listing.author.id == request.user.id and listing.is_active == True %}
+    <div class="card col-12 col-md-4 p-3 ms-2">
+        <h2>Close Auction</h2>
+        <form action="{% url 'close_auction' listing_id=listing.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="winner_id" value="{{ highest_bid.author.id }}">
+            <button type="submit" class="btn bg-warning">Close this Auction</button>
+        </form>
+        {% endif %}
+    </div>
+    {% if listing.is_active == False and listing.winner != None %}
+    <div class="card col-12 col-md-4 m-3 p-3">
+        <h2>Auction Closed!</h2>
+        <h5 class="fw-normal">{{ listing.winner }} won with ${{ highest_bid.price }}</h5>
+    </div>
+    {% endif %}
 </div>
 
 <div class="row m-3">
@@ -73,7 +91,7 @@
         <div class="card mt-3">
             <div class="card-header d-flex">
                 <p class="m-0"><b>{{ c.author }}</b> {{ c.date_commented }}</p>
-                {% if listing.author.id == request.user.id %}
+                {% if c.author.id == request.user.id %}
                 <form class="ms-auto" action="{% url 'delete_comment' listing_id=listing.id %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="comment_id" value="{{ c.id }}">
